@@ -43,7 +43,7 @@ const ProgressBar = ({
     const formattedPercentage = `${Math.round(progressValue)}%`;
 
     return (
-        <div className={`w-full ${className}`}>
+        <div className={`w-full ${className} -z-10`}>
             <div className="relative h-4 w-full overflow-hidden rounded-sm">
                 {/* Completed section */}
                 <div
