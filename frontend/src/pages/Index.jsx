@@ -227,7 +227,7 @@ function Index() {
                         </form>
                         <div className="flex flex-grow h-full w-full gap-2">
                             <div className="w-full border-1 border-border-second-dark rounded-sm overflow-hidden">
-                                <div className="max-h-[calc(100vh-250px)] overflow-y-auto">
+                                <div className="max-h-[calc(100vh-220px)] overflow-y-auto">
                                     <table className="table w-full text-gray-400 text-sm border-collapse">
                                         <thead className="bg-[#151b1e] text-[#b2b8bb] sticky top-0 z-10">
                                             <tr className="">
