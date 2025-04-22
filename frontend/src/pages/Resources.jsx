@@ -6,24 +6,46 @@ import { FaLaptopCode } from "react-icons/fa";
 import { AreaChartComp } from "../components/charts/AreaChart";
 import { FaMemory } from "react-icons/fa";
 import { RiCpuLine } from "react-icons/ri";
+import { requestResources } from "../api/requests";
+import { useEffect, useState } from "react";
 
 function Resources() {
+    const [cpuData, setCpuData] = useState([]);
+    const [ramData, setRamData] = useState([]);
+    const totalDataPoints = 30;
+    const intervalSeconds = 5;
 
-    const data = [];
-    const totalDataPoints = 30; // Cantidad de puntos de datos
-    const intervalSeconds = 10; // Intervalo en segundos
-    for (let i = 0; i <= totalDataPoints; i++) {
-        // Calculamos la fecha restando los segundos acumulados
-        const date = new Date(Date.now() - (totalDataPoints - i) * intervalSeconds * 1000);
-        
-        // Formateamos la hora con minutos y segundos
-        const timeString = date.toISOString().substr(11, 8);
-        
-        data.push({
-            time: timeString,
-            value: 1 + Math.random() // Simula el uso de CPU (1-2)
-        });
-    }
+    const getResources = async () => {
+        try {
+            const res = await requestResources(); // Esta debe devolver el objeto con CPU y RAM
+            // console.log(res);
+            const date = new Date();
+            const timeString = date.toISOString().substr(11, 8);
+            
+            let response = res.data
+            console.log(response)
+            const cpuPercentage = response?.CPU?.percentage ?? 0;
+            const ramPercentage = response?.RAM?.percentage ?? 0;
+
+            setCpuData(prev => {
+                const updated = [...prev, { time: timeString, value: cpuPercentage }];
+                return updated.length > totalDataPoints ? updated.slice(-totalDataPoints) : updated;
+            });
+
+            setRamData(prev => {
+                const updated = [...prev, { time: timeString, value: ramPercentage }];
+                return updated.length > totalDataPoints ? updated.slice(-totalDataPoints) : updated;
+            });
+        } catch (error) {
+            console.log("Error obteniendo recursos:", error);
+        }
+    };
+
+    useEffect(() => {
+        getResources();
+        const interval = setInterval(getResources, intervalSeconds * 1000);
+        return () => clearInterval(interval);
+    }, []);
 
     const colorsCPU = ["#838dc2","#333d53","#333d53"]
     const colorsRAM = ["#4e8f7b","#2d4a48","#2d4a48"]
@@ -41,7 +63,7 @@ function Resources() {
                             />
                             <span className="text-3xl font-semibold">32%</span>
                         </div>
-                        <AreaChartComp data={data} colors={colorsCPU} id={1} />
+                        <AreaChartComp data={cpuData} colors={colorsCPU} id={1} />
                     </div>
                     <div className="flex h-1/2 flex-col w-full border-1 border-border-second-dark rounded-sm p-3">
                         <div className="flex items-center justify-between pr-3 mb-4">
@@ -51,7 +73,7 @@ function Resources() {
                             />
                             <span className="text-3xl font-semibold">32%</span>
                         </div>
-                        <AreaChartComp data={data} colors={colorsRAM} id={2} />
+                        <AreaChartComp data={ramData} colors={colorsRAM} id={2} />
                     </div>
                 </div>
             </div>
