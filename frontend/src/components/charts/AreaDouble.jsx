@@ -58,7 +58,7 @@ export const AreaDouble = ({ data, colors, id }) => {
                     dataKey="value1" // Usamos uno de los dataKeys como referencia
                     axisLine={false}
                     tickLine={false}
-                    tickFormatter={(number) => `${number.toFixed(2)}%`}
+                    tickFormatter={(number) => `${number.toFixed(2)}`}
                 />
 
                 <Tooltip content={<CustomTooltip />} />

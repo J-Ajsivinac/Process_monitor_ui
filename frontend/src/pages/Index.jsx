@@ -8,14 +8,14 @@ import { TitleContainer } from "../components/TitleContainer";
 import { RiCpuLine } from "react-icons/ri";
 import { MdTimeline } from "react-icons/md";
 import ProcessTimeline from "../components/charts/TimeLineChart";
-import { SelectInput } from "../components/SelectInput";
-import { LuAppWindow } from "react-icons/lu";
-import { useState } from "react";
+    import { LuAppWindow } from "react-icons/lu";
+import { useEffect, useState } from "react";
 import AreaDouble from "../components/charts/AreaDouble";
 import ProgressBar from "../components/ProgressBar";
 import { toast } from "sonner";
 import { FiCheck } from "react-icons/fi";
 import Tag from "../components/Tag";
+import { requestProcess, requestTimeLine } from "../api/requests";
 
 function Index() {
     const [selectedProcess, setSelectedProcess] = useState("");
@@ -23,6 +23,12 @@ function Index() {
     const [searchTerm, setSearchTerm] = useState("");
     // Estado para el valor de búsqueda
     const [searchValue, setSearchValue] = useState("");
+    const [processData, setProcessData] = useState([]);
+
+    const [timeLine, setTimeLine] = useState([]);
+
+    const intervalSeconds = 10;
+
     const [graphData, setGraphData] = useState([
         {
             time: "2023-01-01T10:00:00",
@@ -46,109 +52,42 @@ function Index() {
         },
     ]);
 
-    // Datos de ejemplo para la tabla
-    const processData = [
-        {
-            icon: <LuAppWindow />,
-            nombre: "Chrome",
-            pid: 12,
-            usuario: "user1",
-            estado: "Running",
-            cpu: 55,
-            ram: 85,
-            red: "12.3kbps",
-            inicio: "12:03:12",
-        },
-        {
-            icon: <LuAppWindow />,
-            nombre: "Brave",
-            pid: 33,
-            usuario: "user2",
-            estado: "Sleeping",
-            cpu: 30,
-            ram: 45,
-            red: "5.1kbps",
-            inicio: "10:15:33",
-        },
-        {
-            icon: <LuAppWindow />,
-            nombre: "Docker",
-            pid: 334,
-            usuario: "root",
-            estado: "Disk Sleep",
-            cpu: 75,
-            ram: 60,
-            red: "8.7kbps",
-            inicio: "08:45:21",
-        },
-        {
-            icon: <LuAppWindow />,
-            nombre: "Node",
-            pid: 456,
-            usuario: "user1",
-            estado: "Zombie",
-            cpu: 40,
-            ram: 35,
-            red: "3.2kbps",
-            inicio: "09:12:47",
-        },
-        {
-            icon: <LuAppWindow />,
-            nombre: "VSCode",
-            pid: 789,
-            usuario: "user3",
-            estado: "Stopped",
-            cpu: 65,
-            ram: 70,
-            red: "15.8kbps",
-            inicio: "11:22:09",
-        },
-        {
-            icon: <LuAppWindow />,
-            nombre: "VSCode",
-            pid: 222,
-            usuario: "user3",
-            estado: "Tracing",
-            cpu: 65,
-            ram: 70,
-            red: "15.8kbps",
-            inicio: "11:22:09",
-        },
-        {
-            icon: <LuAppWindow />,
-            nombre: "VSCode",
-            pid: 333,
-            usuario: "user3",
-            estado: "Dead",
-            cpu: 65,
-            ram: 70,
-            red: "15.8kbps",
-            inicio: "11:22:09",
-        },
-        {
-            icon: <LuAppWindow />,
-            nombre: "VSCode",
-            pid: 777,
-            usuario: "user3",
-            estado: "Wakekill",
-            cpu: 65,
-            ram: 70,
-            red: "15.8kbps",
-            inicio: "11:22:09",
-        },
-        {
-            icon: <LuAppWindow />,
-            nombre: "VSCode",
-            pid: 779,
-            usuario: "user3",
-            estado: "default",
-            cpu: 65,
-            ram: 70,
-            red: "15.8kbps",
-            inicio: "11:22:09",
-        },
-    ];
+    const getAllProcess = async ()=>{
+        try {
+            const res = await requestProcess();
+            let response = res.data
+            setProcessData(response)
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
+    const getTimeLine = async ()=>{
+        try {
+            const res = await requestTimeLine();
+            let response = res.data
+            console.log(response)
+            // setProcessData(response)
+            setTimeLine(response)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    useEffect(()=>{
+        getAllProcess();
+        const interval = setInterval(getAllProcess, intervalSeconds * 1000);
+        return () => clearInterval(interval);
+    },[])
+
+    useEffect(()=>{
+        getTimeLine();
+        const interval = setInterval(getTimeLine, intervalSeconds * 1000);
+        return () => clearInterval(interval);
+    },[])
+
+
+    // Datos de ejemplo para la tabla
     const process = [
         { icon: <LuAppWindow />, nombre: "Chrome", pid: 12 },
         { icon: <LuAppWindow />, nombre: "Brave", pid: 33 },
@@ -251,7 +190,10 @@ function Index() {
                                                     RAM %
                                                 </th>
                                                 <th className="p-3 text-left font-semibold">
-                                                    RED
+                                                    Hilos
+                                                </th>
+                                                <th className="p-3 text-left font-semibold">
+                                                    PRIORIDAD
                                                 </th>
                                                 <th className="p-3 text-left font-semibold">
                                                     INICIO
@@ -303,19 +245,19 @@ function Index() {
                                                     </td>
                                                     <td className="px-3 py-4 text-left">
                                                         <div className="flex items-center gap-2">
-                                                            {proc.icon}{" "}
-                                                            {proc.nombre}
+                                                            {<LuAppWindow />}{" "}
+                                                            {proc.name}
                                                         </div>
                                                     </td>
                                                     <td className="px-3 py-4 text-left">
-                                                        {proc.usuario}
+                                                        {proc.user}
                                                     </td>
                                                     <td className="px-3 py-4 text-left">
                                                         <Tag
                                                             content={
-                                                                proc.estado
+                                                                proc.state
                                                             }
-                                                            type={proc.estado}
+                                                            type={proc.state}
                                                         />
                                                     </td>
                                                     <td className="px-3 py-4 text-left">
@@ -331,10 +273,13 @@ function Index() {
                                                         />
                                                     </td>
                                                     <td className="px-3 py-4 text-left">
-                                                        {proc.red}
+                                                        {proc.threads}
                                                     </td>
                                                     <td className="px-3 py-4 text-left">
-                                                        {proc.inicio}
+                                                        {proc.priority-100}
+                                                    </td>
+                                                    <td className="px-3 py-4 text-left">
+                                                        {proc.start_time}
                                                     </td>
                                                 </tr>
                                             ))}
@@ -432,7 +377,7 @@ function Index() {
                                 icon={<MdTimeline size={24} />}
                                 title={"Línea de Tiempo de Procesos"}
                             />
-                            <ProcessTimeline />
+                            <ProcessTimeline processes={timeLine} />
                         </div>
                     </div>
                 </TabContent>

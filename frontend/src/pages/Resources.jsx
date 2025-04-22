@@ -12,20 +12,30 @@ import { useEffect, useState } from "react";
 function Resources() {
     const [cpuData, setCpuData] = useState([]);
     const [ramData, setRamData] = useState([]);
+    const [ramPer, setRamPer] = useState(0);
+    const [cpuPer, setCpuPer] = useState(0);
     const totalDataPoints = 30;
     const intervalSeconds = 5;
 
     const getResources = async () => {
         try {
-            const res = await requestResources(); // Esta debe devolver el objeto con CPU y RAM
-            // console.log(res);
+            const res = await requestResources(); 
             const date = new Date();
-            const timeString = date.toISOString().substr(11, 8);
+            const timeString = date.toLocaleTimeString('es-GT', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+            
             
             let response = res.data
-            console.log(response)
+            // console.log(response)
             const cpuPercentage = response?.CPU?.percentage ?? 0;
             const ramPercentage = response?.RAM?.percentage ?? 0;
+
+            setRamPer(ramPercentage);
+            setCpuPer(cpuPercentage);
 
             setCpuData(prev => {
                 const updated = [...prev, { time: timeString, value: cpuPercentage }];
@@ -61,7 +71,7 @@ function Resources() {
                                 icon={<RiCpuLine size={24} />}
                                 title={"Uso de CPU"}
                             />
-                            <span className="text-3xl font-semibold">32%</span>
+                            <span className="text-3xl font-semibold">{cpuPer + "%"}</span>
                         </div>
                         <AreaChartComp data={cpuData} colors={colorsCPU} id={1} />
                     </div>
@@ -71,7 +81,7 @@ function Resources() {
                                 icon={<FaMemory size={24} />}
                                 title={"Uso de RAM"}
                             />
-                            <span className="text-3xl font-semibold">32%</span>
+                            <span className="text-3xl font-semibold">{ramPer + "%"}</span>
                         </div>
                         <AreaChartComp data={ramData} colors={colorsRAM} id={2} />
                     </div>

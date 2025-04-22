@@ -2,23 +2,48 @@ import Content from "../components/Content";
 import { Title } from "../components/Title";
 import { TbNetwork } from "react-icons/tb";
 import { AreaChartComp } from "../components/charts/AreaChart";
+import { useEffect, useState } from "react";
+import { requestNetwork } from "../api/requests";
+import AreaDouble from "../components/charts/AreaDouble";
 
 function Network() {
-    const data = [];
-    const totalDataPoints = 30; // Cantidad de puntos de datos
-    const intervalSeconds = 10; // Intervalo en segundos
-    for (let i = 0; i <= totalDataPoints; i++) {
-        // Calculamos la fecha restando los segundos acumulados
-        const date = new Date(Date.now() - (totalDataPoints - i) * intervalSeconds * 1000);
-        
-        // Formateamos la hora con minutos y segundos
-        const timeString = date.toISOString().substr(11, 8);
-        
-        data.push({
-            time: timeString,
-            value: 1 + Math.random() // Simula el uso de CPU (1-2)
-        });
+    const [data, setData] = useState([]);
+    const totalDataPoints = 30;
+    const intervalSeconds = 10;
+
+    const getNetwork = async() =>{
+        try {
+            const res = await requestNetwork()
+            let response = res.data
+            console.log(response)
+            const date = new Date();
+            const timeString = date.toLocaleTimeString('es-GT', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+            const value1 = response.bytes_sent_mb;
+            const value2 = response.bytes_received_mb;
+
+            setData(prev => {
+                const updated = [...prev, { time: timeString, value1: value1,value2:value2 }];
+                return updated.length > totalDataPoints ? updated.slice(-totalDataPoints) : updated;
+            })
+
+            // console.log(data,value1,value2)
+        } catch (error) {
+            console.log(error)
+        }
     }
+
+    useEffect(()=>{
+        getNetwork();
+        const interval = setInterval(getNetwork, intervalSeconds * 1000);
+        return () => clearInterval(interval);
+    },[])
+        
+
 
     const colors = ["#838dc2","#333d53","#333d53"]
     return (
@@ -28,7 +53,10 @@ function Network() {
             {/* Bytes enviados y recibidos a lo largo del tiempo */}
             <div className="w-full h-full pl-6 pr-6 pb-4">
                 <div className="w-full h-full border-1 border-border-dark rounded-sm">
-                    <AreaChartComp data={data} colors={colors} id={1} />
+                    <AreaDouble id='network' data={data} colors={[
+                                    ["#838dc2", "#333d53", "#333d53"], // CPU
+                                    ["#4e8f7b", "#2d4a48", "#2d4a48"], // RAM
+                                ]}/>
                 </div>
             </div>
         </Content>
