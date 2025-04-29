@@ -9,13 +9,13 @@ import { RiCpuLine } from "react-icons/ri";
 import { MdTimeline } from "react-icons/md";
 import ProcessTimeline from "../components/charts/TimeLineChart";
     import { LuAppWindow } from "react-icons/lu";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AreaDouble from "../components/charts/AreaDouble";
 import ProgressBar from "../components/ProgressBar";
 import { toast } from "sonner";
 import { FiCheck } from "react-icons/fi";
 import Tag from "../components/Tag";
-import { requestProcess, requestTimeLine } from "../api/requests";
+import { requestProcess, requestSearchPID, requestTimeLine } from "../api/requests";
 
 function Index() {
     const [selectedProcess, setSelectedProcess] = useState("");
@@ -24,33 +24,13 @@ function Index() {
     // Estado para el valor de búsqueda
     const [searchValue, setSearchValue] = useState("");
     const [processData, setProcessData] = useState([]);
-
+    const intervalRef = useRef(null);
     const [timeLine, setTimeLine] = useState([]);
 
     const intervalSeconds = 10;
+    const totalDataPoints = 30;
 
-    const [graphData, setGraphData] = useState([
-        {
-            time: "2023-01-01T10:00:00",
-            value1: 30,
-            value2: 45,
-        },
-        {
-            time: "2023-01-01T10:05:00",
-            value1: 45,
-            value2: 60,
-        },
-        {
-            time: "2023-01-01T10:10:00",
-            value1: 75,
-            value2: 30,
-        },
-        {
-            time: "2023-01-01T10:15:00",
-            value1: 35,
-            value2: 83,
-        },
-    ]);
+    const [graphData, setGraphData] = useState([]);
 
     const getAllProcess = async ()=>{
         try {
@@ -112,6 +92,63 @@ function Index() {
             setSelectedProcess(value);
         }
     };
+
+    const handleSearch = () => {
+        // Ejecutar búsqueda inmediata
+        searchPID();
+
+        // Limpiar interval anterior si existía
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+        }
+
+        // Iniciar nuevo intervalo
+        intervalRef.current = setInterval(() => {
+            searchPID();
+        }, intervalSeconds * 1000);
+    };
+
+    const searchPID = async()=>{
+        // if(searchValue == ""){
+        //     return;
+        // }
+        const objectSearched = {
+            pid: parseInt(searchValue, 10)
+        }
+        console.log(objectSearched)
+
+        try {
+            const res = await requestSearchPID(objectSearched);
+            let response = res.data
+            const date = new Date();
+            const timeString = date.toLocaleTimeString('es-GT', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+            
+            const cpuPercentage = response?.cpu ?? 0;
+            const ramPercentage = response?.ram ?? 0;
+
+            setGraphData(prev => {
+                const updated = [...prev, { time: timeString, value1: cpuPercentage, value2: ramPercentage}];
+                return updated.length > totalDataPoints ? updated.slice(-totalDataPoints) : updated;
+            });
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    useEffect(() => {
+        // Limpiar intervalo al desmontar el componente
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
+        };
+    }, []);
 
     const handleCheckboxChange = (pid) => {
         setSelectedPids((prev) => {
@@ -304,52 +341,7 @@ function Index() {
                                 value={searchValue}
                                 onKeyDown={(e) => {
                                     if (e.key === "Enter") {
-                                        // Simular fetch
-                                        console.log(
-                                            "Buscando PID:",
-                                            searchValue
-                                        );
-
-                                        // Podés simular un "fetch" con un setTimeout si querés
-                                        const newData = [
-                                            {
-                                                time: "2023-01-01T10:00:00",
-                                                value1: Math.floor(
-                                                    Math.random() * 100
-                                                ),
-                                                value2: Math.floor(
-                                                    Math.random() * 100
-                                                ),
-                                            },
-                                            {
-                                                time: "2023-01-01T10:05:00",
-                                                value1: Math.floor(
-                                                    Math.random() * 100
-                                                ),
-                                                value2: Math.floor(
-                                                    Math.random() * 100
-                                                ),
-                                            },
-                                            {
-                                                time: "2023-01-01T10:10:00",
-                                                value1: Math.floor(
-                                                    Math.random() * 100
-                                                ),
-                                                value2: Math.floor(
-                                                    Math.random() * 100
-                                                ),
-                                            },
-                                            {
-                                                time: "2023-01-01T10:15:00",
-                                                value1: Math.floor(
-                                                    Math.random() * 100
-                                                ),
-                                                value2: Math.floor(
-                                                    Math.random() * 100
-                                                ),
-                                            },
-                                        ];
-                                        setGraphData(newData);
+                                        handleSearch();
                                     }
                                 }}
                             />
