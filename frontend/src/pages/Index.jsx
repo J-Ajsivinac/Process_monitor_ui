@@ -27,7 +27,7 @@ function Index() {
     const intervalRef = useRef(null);
     const [timeLine, setTimeLine] = useState([]);
 
-    const intervalSeconds = 10;
+    const intervalSeconds = 5;
     const totalDataPoints = 30;
 
     const [graphData, setGraphData] = useState([]);
