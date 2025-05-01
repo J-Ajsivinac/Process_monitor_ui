@@ -15,7 +15,7 @@ import ProgressBar from "../components/ProgressBar";
 import { toast } from "sonner";
 import { FiCheck } from "react-icons/fi";
 import Tag from "../components/Tag";
-import { requestProcess, requestSearchPID, requestTimeLine } from "../api/requests";
+import { requestKillPID, requestProcess, requestSearchPID, requestTimeLine } from "../api/requests";
 
 function Index() {
     const [selectedProcess, setSelectedProcess] = useState("");
@@ -162,8 +162,25 @@ function Index() {
 
     const handleKillProcesses = () => {
         if (selectedPids.length === 0) return;
-
-        toast.success(`Procesos eliminados: ${selectedPids.join(", ")}`);
+        console.log(selectedPids)
+        selectedPids.forEach(async (pid) => { 
+            let format = {
+                pid: pid,
+                signal: 9
+            }
+            console.log(format)
+            try {
+                const res = await requestKillPID(format);
+                console.log(res)
+            } catch (error) {
+                toast.error("Ocurrio un error al usar SIGKILL ", {
+                    duration: 2000,
+                });
+            }
+        });
+        toast.success("Procesos seleccionados han sido eliminados", {
+            duration: 2000,
+        });
         // Aquí iría la lógica para matar los procesos
         setSelectedPids([]); // Limpiar selección después de matar procesos
     };
