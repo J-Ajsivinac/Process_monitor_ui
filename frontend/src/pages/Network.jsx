@@ -9,7 +9,7 @@ import AreaDouble from "../components/charts/AreaDouble";
 function Network() {
     const [data, setData] = useState([]);
     const totalDataPoints = 30;
-    const intervalSeconds = 10;
+    const intervalSeconds = 5;
 
     const getNetwork = async() =>{
         try {
@@ -56,7 +56,8 @@ function Network() {
                     <AreaDouble id='network' data={data} colors={[
                                     ["#838dc2", "#333d53", "#333d53"], // CPU
                                     ["#4e8f7b", "#2d4a48", "#2d4a48"], // RAM
-                                ]}/>
+                                ]}
+                                names={['Bytes entrantes', 'Bytes salientes']}/>
                 </div>
             </div>
         </Content>

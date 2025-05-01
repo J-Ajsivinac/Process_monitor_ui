@@ -217,7 +217,7 @@ export default function ProcessTimeline({ processes = [], currentTimeOverride = 
                                     >
                                         <span className="text-sm font-medium truncate text-white">
                                             {process.name}
-                                            {process.endTime === null && " (En ejecución)"}
+                                            {" ["+process.id+"]"}
                                         </span>
                                     </div>
 

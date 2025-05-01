@@ -40,7 +40,7 @@ const ProgressBar = ({
             : "0%";
 
     // Format percentage for display
-    const formattedPercentage = `${Math.round(progressValue)}%`;
+    const formattedPercentage = `${progressValue.toFixed(2)}%`;
 
     return (
         <div className={`w-full ${className} -z-10`}>

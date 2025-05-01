@@ -341,6 +341,7 @@ function Index() {
                                 value={searchValue}
                                 onKeyDown={(e) => {
                                     if (e.key === "Enter") {
+                                        setGraphData([]);
                                         handleSearch();
                                     }
                                 }}
@@ -354,6 +355,7 @@ function Index() {
                                     ["#838dc2", "#333d53", "#333d53"], // CPU
                                     ["#4e8f7b", "#2d4a48", "#2d4a48"], // RAM
                                 ]}
+                                names={['CPU', 'RAM']}
                             />
                         </div>
                     </div>

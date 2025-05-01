@@ -9,10 +9,12 @@ import {
     ReferenceLine,
 } from "recharts";
 
-export const AreaDouble = ({ data, colors, id }) => {
+export const AreaDouble = ({ data, colors, id, names }) => {
     // Desestructurar los colores para cada dataset
     const [colorPrimary1, colorFillStart1, colorFillEnd1] = colors[0]; // Colores para el primer dataset (ej. CPU)
     const [colorPrimary2, colorFillStart2, colorFillEnd2] = colors[1]; // Colores para el segundo dataset (ej. RAM)
+
+    const [name1, name2] = names || ["Value 1", "Value 2"];
 
     return (
         <ResponsiveContainer width="100%" height="100%">
@@ -34,7 +36,7 @@ export const AreaDouble = ({ data, colors, id }) => {
                     dataKey="value1" 
                     stroke={colorPrimary1} 
                     fill={`url(#color-${id}-1)`} 
-                    name="CPU" // Nombre para el tooltip
+                    name={name1}// Nombre para el tooltip
                 />
                 
                 {/* Segunda área (ej. RAM) */}
@@ -42,7 +44,7 @@ export const AreaDouble = ({ data, colors, id }) => {
                     dataKey="value2" 
                     stroke={colorPrimary2} 
                     fill={`url(#color-${id}-2)`} 
-                    name="RAM" // Nombre para el tooltip
+                    name={name2} // Nombre para el tooltip
                 />
 
                 <ReferenceLine x="Page C" stroke="red" label="Max PV PAGE" />
@@ -71,6 +73,11 @@ export const AreaDouble = ({ data, colors, id }) => {
 
 function CustomTooltip({ active, payload, label }) {
     if (active && payload && payload.length) {
+        // Determinar si estamos mostrando CPU/RAM (buscando esos nombres en los payloads)
+        const isCpuRam = payload.some(
+            entry => entry.name.includes('CPU') || entry.name.includes('RAM')
+        );
+
         return (
             <div className="bg-panel-hover-dark border-2 border-border-second-dark p-4 text-center rounded-sm">
                 <h4 className='font-bold'>
@@ -78,7 +85,7 @@ function CustomTooltip({ active, payload, label }) {
                 </h4>
                 {payload.map((entry, index) => (
                     <p key={`item-${index}`} style={{ color: entry.color }}>
-                        {entry.name}: {entry.value.toFixed(2)}%
+                        {entry.name}: {entry.value.toFixed(2)}{isCpuRam ? '%' : 'MB'}
                     </p>
                 ))}
             </div>
