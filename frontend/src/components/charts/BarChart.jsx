@@ -27,7 +27,7 @@ export const OptimizedProcessEnergyBarChart = ({ data, colors, id }) => {
         
         const processedData = data.map(process => ({
             ...process,
-            name: `${process.pid}`,
+            name: `${process.name}`,
             value: process.value / 1000000, // Convertir a un valor más legible
         }));
 
@@ -117,6 +117,7 @@ function CustomTooltip({ active, payload }) {
         return (
             <div className="bg-panel-hover-dark border border-border-second-dark p-3 rounded shadow-lg">
                 <h4 className="font-bold text-white mb-1">PID: {process.pid}</h4>
+                <p className="text-gray-300 mb-1">Nombre: {process.name}</p>
                 <p className="text-gray-300 mb-1">Energía: {payload[0].value.toFixed(2)} mJ</p>
                 <p className="text-gray-300 mb-1">CPU: {(process.cpu_usage / 1000000).toFixed(2)} ms</p>
                 <p className="text-gray-300 mb-1">RAM: {(process.ram_usage / 1024).toFixed(2)} MB</p>

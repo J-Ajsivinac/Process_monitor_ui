@@ -20,7 +20,7 @@ function Energy() {
             //     hour12: false
             // });
             let response = res.data
-            // console.log(response)
+            console.log(response)
             setData(response)
         } catch (error) {
             console.log(error)

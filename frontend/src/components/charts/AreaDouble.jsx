@@ -27,7 +27,7 @@ export const AreaDouble = ({ data, colors, id, names }) => {
                     </linearGradient>
                     <linearGradient id={`color-${id}-2`} x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor={colorFillStart2} stopOpacity={0.9} />
-                        <stop offset="80%" stopColor={colorFillEnd2} stopOpacity={0.5} />
+                        <stop offset="80%" stopColor={colorFillEnd2} stopOpacity={0.7} />
                     </linearGradient>
                 </defs>
 
@@ -56,11 +56,11 @@ export const AreaDouble = ({ data, colors, id, names }) => {
                 />
 
                 <YAxis
-                    orientation="right"
-                    dataKey="value1" // Usamos uno de los dataKeys como referencia
-                    axisLine={false}
-                    tickLine={false}
-                    tickFormatter={(number) => `${number.toFixed(2)}`}
+                     orientation="right"
+                     axisLine={false}
+                     tickLine={false}
+                     tickFormatter={(number) => `${number.toFixed(2)}`}
+                     domain={['auto', 'auto']} // <-- Asegura que se calcule correctamente el mínimo y máximo
                 />
 
                 <Tooltip content={<CustomTooltip />} />
