@@ -76,7 +76,7 @@ function Index() {
         { icon: <LuAppWindow />, nombre: "Docker", pid: 334 },
     ];
 
-    // Filtrar procesos basados en el término de búsqueda
+    // Filtrar procesos
     const filteredProcessData = processData.filter((proc) => {
         if (!searchTerm) return true;
         const term = searchTerm.toLowerCase();
@@ -94,15 +94,10 @@ function Index() {
     };
 
     const handleSearch = () => {
-        // Ejecutar búsqueda inmediata
         searchPID();
-
-        // Limpiar interval anterior si existía
         if (intervalRef.current) {
             clearInterval(intervalRef.current);
         }
-
-        // Iniciar nuevo intervalo
         intervalRef.current = setInterval(() => {
             searchPID();
         }, intervalSeconds * 1000);
@@ -142,7 +137,7 @@ function Index() {
     }
 
     useEffect(() => {
-        // Limpiar intervalo al desmontar el componente
+        // Limpiar
         return () => {
             if (intervalRef.current) {
                 clearInterval(intervalRef.current);
@@ -181,8 +176,7 @@ function Index() {
         toast.success("Procesos seleccionados han sido eliminados", {
             duration: 2000,
         });
-        // Aquí iría la lógica para matar los procesos
-        setSelectedPids([]); // Limpiar selección después de matar procesos
+        setSelectedPids([]);
     };
 
     return (
